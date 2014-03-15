@@ -7,12 +7,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.androgames</groupId>
     <artifactId>level</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.9.4</version>
     <packaging>apk</packaging>
     <name>level</name>
 
     <properties>
-        <platform.version>4.3_r1</platform.version>
+        <platform.version>4.4.2_r2</platform.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>android</groupId>
             <artifactId>android</artifactId>
-            <version>4.3_r1</version>
+            <version>${platform.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -30,15 +30,16 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
+                <version>3.8.2</version>
                 <configuration>
                     <androidManifestFile>${project.basedir}/AndroidManifest.xml</androidManifestFile>
                     <assetsDirectory>${project.basedir}/assets</assetsDirectory>
                     <resourceDirectory>${project.basedir}/res</resourceDirectory>
                     <nativeLibrariesDirectory>${project.basedir}/src/main/native</nativeLibrariesDirectory>
                     <sdk>
-                        <platform>15</platform>
+                        <platform>19</platform>
                     </sdk>
-                    <undeployBeforeDeploy>true</undeployBeforeDeploy>
+                    <undeployBeforeDeploy>false</undeployBeforeDeploy>
                 </configuration>
                 <extensions>true</extensions>
                 <executions>
@@ -54,24 +55,24 @@
             </plugin>
             
             <plugin>
-                <groupId>fr.avianey.modjo</groupId>
+                <groupId>fr.avianey.mojo</groupId>
                 <artifactId>androidgendrawable-maven-plugin</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0.0</version>
                 <configuration>
                     <from>${project.basedir}/svg</from>
                     <to>${project.basedir}/res</to>
                     <rename>
                         <level>icon</level>
                     </rename>
-                    <createMissingDirectories>true</createMissingDirectories>
                     <targetedDensities>
-                        <density>ldpi</density>
-                        <density>mdpi</density>
-                        <density>hdpi</density>
-                        <density>xhdpi</density>
+                        <densitys>ldpi</densitys>
+                        <densitys>mdpi</densitys>
+                        <densitys>hdpi</densitys>
+                        <densitys>xhdpi</densitys>
+                        <densitys>xxhdpi</densitys>
+                        <densitys>xxxhdpi</densitys>
                     </targetedDensities>
                     <fallbackDensity>mdpi</fallbackDensity>
-                    <skipNoDpi>true</skipNoDpi>
                     <highResIcon>level</highResIcon>
                 </configuration>
                 <executions>
@@ -86,7 +87,6 @@
 
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>

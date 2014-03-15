@@ -15,13 +15,12 @@ import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 /*
@@ -53,7 +52,6 @@ public class Level extends Activity implements OrientationListener {
 	private OrientationProvider provider;
 	
     private LevelView view;
-    private WakeLock wakeLock;
     
 	/** Gestion du son */
 	private SoundPool soundPool;
@@ -66,6 +64,7 @@ public class Level extends Activity implements OrientationListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         CONTEXT = this;
         view = (LevelView) findViewById(R.id.level);
         // sound
@@ -137,10 +136,6 @@ public class Level extends Activity implements OrientationListener {
     	} else {
     		Toast.makeText(this, getText(R.string.not_supported), TOAST_DURATION).show();
     	}
-        // wake lock
-        wakeLock = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(
-        		PowerManager.SCREEN_BRIGHT_WAKE_LOCK, this.getClass().getName());
-        wakeLock.acquire();
     }
 
     @Override
@@ -149,7 +144,6 @@ public class Level extends Activity implements OrientationListener {
         if (provider.isListening()) {
         	provider.stopListening();
     	}
-		wakeLock.release();
     }
     
     @Override

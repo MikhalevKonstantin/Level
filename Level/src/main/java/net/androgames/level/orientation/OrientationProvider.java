@@ -1,5 +1,6 @@
 package net.androgames.level.orientation;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 /*
  *  This file is part of Level (an Android Bubble Level).
@@ -56,6 +58,7 @@ public abstract class OrientationProvider implements SensorEventListener {
 	private boolean calibrating = false;
 	
 	/** Orientation */
+    protected float yaw;
     protected float pitch;
     protected float roll;
     protected float tmp;
@@ -108,7 +111,7 @@ public abstract class OrientationProvider implements SensorEventListener {
                 return supported;
             }
         }
-        return false;
+        return supported;
     }
     
     /**
@@ -150,6 +153,11 @@ public abstract class OrientationProvider implements SensorEventListener {
 		oldRoll = roll;
 		
         handleSensorChanged(event);
+        
+//        if (Log.isLoggable("OrientationProvider", Log.DEBUG)) {
+            DecimalFormat df = new DecimalFormat("0000.00");
+            Log.d("OrientationProvider", "pitch = " + df.format(pitch) + " - roll = " + df.format(roll) + " - yaw = " + df.format(yaw));
+//        }
 
 		// calculating minimal sensor step
 		if (oldRoll != roll || oldPitch != pitch) {

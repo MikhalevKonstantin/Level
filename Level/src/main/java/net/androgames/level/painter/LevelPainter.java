@@ -633,7 +633,7 @@ public class LevelPainter implements Runnable {
 			switch (orientation) {
 				case TOP :
 				case BOTTOM :
-					angle1 = Math.abs(newRoll);
+					angle1 = Math.abs(newPitch);
 					break;
 				case LANDING :
 					angle2 = Math.abs(newRoll);

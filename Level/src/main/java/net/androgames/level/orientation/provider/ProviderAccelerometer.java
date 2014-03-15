@@ -1,5 +1,6 @@
 package net.androgames.level.orientation.provider;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import net.androgames.level.orientation.OrientationProvider;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
+import android.util.Log;
 import android.view.Surface;
 
 /*
@@ -102,8 +104,22 @@ public class ProviderAccelerometer extends OrientationProvider {
                 
                 SensorManager.getOrientation(outR, LOC);
                 
+                Log.d("Level", "rotation " +
+                		"x("+df.format(outR[0])+","+df.format(outR[1])+","+df.format(outR[2])+") " +
+                		"y("+df.format(outR[4])+","+df.format(outR[5])+","+df.format(outR[6])+") " +
+                		"z("+df.format(outR[8])+","+df.format(outR[9])+","+df.format(outR[10])+")");
+                
+//                x2+y2 = 1;
+                double length = Math.sqrt(outR[8]*outR[8]+outR[9]*outR[9]);
+                double newX = (length == 0 ? 0 : outR[8] / length);
+
+                Log.d("Level", "inclination port " + df.format(Math.asin(newX) * 360 / (2 * Math.PI))); // good
+                
+                // [0] compass
                 pitch = (float) (LOC[1] * 180 / Math.PI);
                 roll = - (float) (LOC[2] * 180 / Math.PI);
+                
+                Log.d("Level", "converted " + df.format(Math.cos(LOC[1]))+"(" + df.format(outR[8]) + "),"+df.format(Math.cos(LOC[2]))+"(" + df.format(outR[9]) + ")");
                 
                 ACC = null;
                 MAG = null;
@@ -111,6 +127,9 @@ public class ProviderAccelerometer extends OrientationProvider {
             }
         }
 	}
+	
+
+    DecimalFormat df = new DecimalFormat("0.00");
 
 	@Override
     protected List<Integer> getRequiredSensors() {
