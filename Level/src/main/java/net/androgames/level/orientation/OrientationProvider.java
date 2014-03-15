@@ -1,6 +1,5 @@
 package net.androgames.level.orientation;
 
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,13 +12,13 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
+import android.view.Surface;
 
 /*
  *  This file is part of Level (an Android Bubble Level).
  *  <https://github.com/avianey/Level>
  *  
- *  Copyright (C) 2012 Antoine Vianey
+ *  Copyright (C) 2014 Antoine Vianey
  *  
  *  Level is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,8 +38,9 @@ public abstract class OrientationProvider implements SensorEventListener {
 	private static final int MIN_VALUES = 20;
 
 	/** Calibration */
-	private static final String SAVED_PITCH = "net.androgames.level.pitch.";
-	private static final String SAVED_ROLL = "net.androgames.level.roll.";
+	private static final String SAVED_PITCH = "pitch.";
+    private static final String SAVED_ROLL = "roll.";
+    private static final String SAVED_BALANCE = "balance.";
 	
     private Sensor sensor;
     private SensorManager sensorManager;
@@ -54,21 +54,29 @@ public abstract class OrientationProvider implements SensorEventListener {
 
 	/** Calibration */
 	private float[] calibratedPitch = new float[5];
-	private float[] calibratedRoll = new float[5];
+    private float[] calibratedRoll = new float[5];
+    private float[] calibratedBalance = new float[5];
 	private boolean calibrating = false;
 	
 	/** Orientation */
     protected float yaw;
     protected float pitch;
     protected float roll;
+    protected float balance;
     protected float tmp;
     private float oldPitch;
     private float oldRoll;
+    private float oldBalance;
     private float minStep = 360;
     private float refValues = 0;
 	private Orientation orientation;
 	private boolean locked;
 	protected int displayOrientation;
+	
+	/** Rotation Matrix */
+	protected float[] R = new float[16];
+	protected float[] outR = new float[16];
+	protected float[] LOC = new float[3];
  
     protected OrientationProvider() {
 		this.displayOrientation = Level.getContext().getWindowManager().getDefaultDisplay().getRotation();
@@ -124,13 +132,16 @@ public abstract class OrientationProvider implements SensorEventListener {
     	// load calibration
     	calibrating = false;
 		Arrays.fill(calibratedPitch, 0);
-		Arrays.fill(calibratedRoll, 0);
+        Arrays.fill(calibratedRoll, 0);
+        Arrays.fill(calibratedBalance, 0);
     	SharedPreferences prefs = context.getPreferences(Context.MODE_PRIVATE);
     	for (Orientation orientation : Orientation.values()) {
     		calibratedPitch[orientation.ordinal()] = 
     			prefs.getFloat(SAVED_PITCH + orientation.toString(), 0);
-    		calibratedRoll[orientation.ordinal()] = 
-    			prefs.getFloat(SAVED_ROLL + orientation.toString(), 0);
+            calibratedRoll[orientation.ordinal()] = 
+                    prefs.getFloat(SAVED_ROLL + orientation.toString(), 0);
+            calibratedBalance[orientation.ordinal()] = 
+                    prefs.getFloat(SAVED_BALANCE + orientation.toString(), 0);
     	}
     	// register listener and start listening
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
@@ -151,22 +162,65 @@ public abstract class OrientationProvider implements SensorEventListener {
 		
 		oldPitch = pitch;
 		oldRoll = roll;
+		oldBalance = balance;
 		
         handleSensorChanged(event);
         
-//        if (Log.isLoggable("OrientationProvider", Log.DEBUG)) {
-            DecimalFormat df = new DecimalFormat("0000.00");
-            Log.d("OrientationProvider", "pitch = " + df.format(pitch) + " - roll = " + df.format(roll) + " - yaw = " + df.format(yaw));
-//        }
+        // compute pitch, roll & balance
+        switch (displayOrientation) {
+        case Surface.ROTATION_270:
+            SensorManager.remapCoordinateSystem(
+                    R, 
+                    SensorManager.AXIS_MINUS_Y, 
+                    SensorManager.AXIS_X, 
+                    outR);
+            break;
+        case Surface.ROTATION_180:
+            SensorManager.remapCoordinateSystem(
+                    R, 
+                    SensorManager.AXIS_MINUS_X, 
+                    SensorManager.AXIS_MINUS_Y, 
+                    outR);
+            break;
+        case Surface.ROTATION_90:
+            SensorManager.remapCoordinateSystem(
+                    R, 
+                    SensorManager.AXIS_Y, 
+                    SensorManager.AXIS_MINUS_X, 
+                    outR);
+            break;
+        case Surface.ROTATION_0:
+        default:
+            SensorManager.remapCoordinateSystem(
+                    R, 
+                    SensorManager.AXIS_X, 
+                    SensorManager.AXIS_Y, 
+                    outR);
+            break;
+        }
+        
+        SensorManager.getOrientation(outR, LOC);
+        
+        // normalize z on ux, uy
+        tmp = (float) Math.sqrt(outR[8] * outR[8] + outR[9] * outR[9]);
+        tmp = (tmp == 0 ? 0 : outR[8] / tmp);
 
+        // LOC[0] compass
+        pitch = (float) Math.toDegrees(LOC[1]);
+        roll = - (float) Math.toDegrees(LOC[2]);
+        balance = (float) Math.toDegrees(Math.asin(tmp));
+        
 		// calculating minimal sensor step
-		if (oldRoll != roll || oldPitch != pitch) {
+		if (oldRoll != roll || oldPitch != pitch || oldBalance != balance) {
 			if (oldPitch != pitch) {
 				minStep = Math.min(minStep, Math.abs(pitch - oldPitch));
 			}
-			if (oldRoll != roll) {
-				minStep = Math.min(minStep, Math.abs(roll - oldRoll));
-			}
+            if (oldRoll != roll) {
+                minStep = Math.min(minStep, Math.abs(roll - oldRoll));
+            }
+            if (oldBalance != balance) {
+                minStep = Math.min(minStep, Math.abs(balance - oldBalance));
+            }
 			if (refValues < MIN_VALUES) {
 				refValues++;
 			}
@@ -195,22 +249,26 @@ public abstract class OrientationProvider implements SensorEventListener {
 			calibrating = false;
 			Editor editor = Level.getContext().getPreferences(Context.MODE_PRIVATE).edit();
 			editor.putFloat(SAVED_PITCH + orientation.toString(), pitch);
-			editor.putFloat(SAVED_ROLL + orientation.toString(), roll);
+            editor.putFloat(SAVED_ROLL + orientation.toString(), roll);
+            editor.putFloat(SAVED_BALANCE + orientation.toString(), balance);
 			final boolean success = editor.commit();
 			if (success) {
 				calibratedPitch[orientation.ordinal()] = pitch;
-				calibratedRoll[orientation.ordinal()] = roll;
+                calibratedRoll[orientation.ordinal()] = roll;
+                calibratedBalance[orientation.ordinal()] = balance;
 			}
 			listener.onCalibrationSaved(success);
 			pitch = 0;
 			roll = 0;
+			balance = 0;
 		} else {
 	        pitch -= calibratedPitch[orientation.ordinal()];
-	        roll -= calibratedRoll[orientation.ordinal()];
+            roll -= calibratedRoll[orientation.ordinal()];
+            balance -= calibratedBalance[orientation.ordinal()];
 		}
 
 		// propagation of the orientation
-        listener.onOrientationChanged(orientation, pitch, roll);
+        listener.onOrientationChanged(orientation, pitch, roll, balance);
 	}
     
 	protected abstract void handleSensorChanged(SensorEvent event);
@@ -227,7 +285,8 @@ public abstract class OrientationProvider implements SensorEventListener {
 		} catch (Exception e) {}
 		if (success) {
 			Arrays.fill(calibratedPitch, 0);
-			Arrays.fill(calibratedRoll, 0);
+            Arrays.fill(calibratedRoll, 0);
+            Arrays.fill(calibratedBalance, 0);
 		}
 		if (listener != null) {
 			listener.onCalibrationReset(success);

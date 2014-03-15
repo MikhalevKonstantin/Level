@@ -21,7 +21,7 @@ import android.view.SurfaceHolder;
  *  This file is part of Level (an Android Bubble Level).
  *  <https://github.com/avianey/Level>
  *  
- *  Copyright (C) 2012 Antoine Vianey
+ *  Copyright (C) 2014 Antoine Vianey
  *  
  *  Level is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -625,7 +625,7 @@ public class LevelPainter implements Runnable {
 		}
 	}
 
-	public void onOrientationChanged(Orientation newOrientation, float newPitch, float newRoll) {
+	public void onOrientationChanged(Orientation newOrientation, float newPitch, float newRoll, float newBalance) {
 		if (!orientation.equals(newOrientation)) {
 			setOrientation(newOrientation);
 		}
@@ -633,13 +633,16 @@ public class LevelPainter implements Runnable {
 			switch (orientation) {
 				case TOP :
 				case BOTTOM :
-					angle1 = Math.abs(newPitch);
+					angle1 = Math.abs(newBalance);
+		            angleX = Math.sin(newBalance * PI180) / MAX_SINUS;
 					break;
 				case LANDING :
 					angle2 = Math.abs(newRoll);
+		            angleX = Math.sin(newRoll * PI180) / MAX_SINUS;
 				case RIGHT :
 				case LEFT :
 					angle1 = Math.abs(newPitch);
+		            angleY = Math.sin(newPitch * PI180) / MAX_SINUS;
 					if (angle1 > 90) {
 						angle1 = 180 - angle1;
 					}
@@ -662,8 +665,6 @@ public class LevelPainter implements Runnable {
 			if (angle2 > angleType.getMax()) {
 				angle2 = angleType.getMax();
 			}
-	        angleY = Math.sin(newPitch * PI180) / MAX_SINUS;
-	        angleX = Math.sin(newRoll * PI180) / MAX_SINUS;
 	        // correction des angles aberrants
 	        // pour ne pas que la bulle sorte de l'ecran
         	if (angleX > 1) {

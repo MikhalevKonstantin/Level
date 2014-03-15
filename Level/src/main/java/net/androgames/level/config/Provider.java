@@ -9,7 +9,7 @@ import net.androgames.level.orientation.provider.ProviderOrientation;
  *  This file is part of Level (an Android Bubble Level).
  *  <https://github.com/avianey/Level>
  *  
- *  Copyright (C) 2012 Antoine Vianey
+ *  Copyright (C) 2014 Antoine Vianey
  *  
  *  Level is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

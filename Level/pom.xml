@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.androgames</groupId>
     <artifactId>level</artifactId>
-    <version>1.9.4</version>
+    <version>1.9.6</version>
     <packaging>apk</packaging>
     <name>level</name>
 
@@ -26,12 +26,67 @@
     </dependencies>
 
     <build>
+        <finalName>${project.name}</finalName>
+        
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jarsigner-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>signing</id>
+                        <goals>
+                            <goal>sign</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <removeExistingSignatures>true</removeExistingSignatures>
+                            <archive>${project.build.directory}/${project.name}.apk</archive>
+                            <!-- 
+                            -Djarsigner.keystore=
+                            -Djarsigner.alias=
+                            -Djarsigner.storepass=
+                            -Djarsigner.keypass=
+                            <keystore></keystore>
+                            <alias></alias>
+                            <storepass></storepass>
+                            <keypass></keypass> 
+                            -->
+                            <verbose>true</verbose>
+                            <arguments>
+                              <argument>-sigalg</argument><argument>MD5withRSA</argument>
+                              <argument>-digestalg</argument><argument>SHA1</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
                 <version>3.8.2</version>
                 <configuration>
+                    <release>${release}</release>
+                    <sign>
+                        <debug>${debug}</debug>
+                    </sign>
+                    <zipalign>
+                        <skip>false</skip>
+                        <verbose>true</verbose>
+                        <inputApk>${project.build.directory}/${project.name}.apk</inputApk>
+                        <outputApk>${project.build.directory}/${project.name}-release.apk</outputApk>
+                    </zipalign>
+                    <manifest>
+                        <debuggable>${debug}</debuggable>
+                        <versionCodeAutoIncrement>false</versionCodeAutoIncrement>
+                    </manifest>
+                    <proguard>
+                        <skip>${skipProguard}</skip>
+                        <config>proguard.cfg</config>
+                    </proguard>
                     <androidManifestFile>${project.basedir}/AndroidManifest.xml</androidManifestFile>
                     <assetsDirectory>${project.basedir}/assets</assetsDirectory>
                     <resourceDirectory>${project.basedir}/res</resourceDirectory>
@@ -51,13 +106,29 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
+                    
+                    <execution>
+                        <id>manifestUpdate</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>manifest-update</goal>
+                        </goals>
+                    </execution>
+                    
+                    <execution>
+                        <id>alignApk</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>zipalign</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
             
             <plugin>
                 <groupId>fr.avianey.mojo</groupId>
                 <artifactId>androidgendrawable-maven-plugin</artifactId>
-                <version>1.0.0</version>
+                <version>1.0.1</version>
                 <configuration>
                     <from>${project.basedir}/svg</from>
                     <to>${project.basedir}/res</to>
@@ -94,4 +165,26 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <debug>true</debug>
+                <release>false</release>
+                <skipProguard>true</skipProguard>
+            </properties>
+        </profile>
+        <profile>
+            <id>publish</id>
+            <properties>
+                <debug>false</debug>
+                <release>true</release>
+                <skipProguard>false</skipProguard>
+            </properties>
+        </profile>
+    </profiles>
 </project>

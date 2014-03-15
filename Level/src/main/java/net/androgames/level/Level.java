@@ -27,7 +27,7 @@ import android.widget.Toast;
  *  This file is part of Level (an Android Bubble Level).
  *  <https://github.com/avianey/Level>
  *  
- *  Copyright (C) 2012 Antoine Vianey
+ *  Copyright (C) 2014 Antoine Vianey
  *  
  *  Level is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -155,9 +155,10 @@ public class Level extends Activity implements OrientationListener {
     }
 
 	@Override
-	public void onOrientationChanged(Orientation orientation, float pitch, float roll) {
+	public void onOrientationChanged(Orientation orientation, float pitch, float roll, float balance) {
+	    // TODO : use balance
 		if (soundEnabled 
-				&& orientation.isLevel(pitch, roll, provider.getSensibility())
+				&& orientation.isLevel(pitch, roll, balance, provider.getSensibility())
 				&& System.currentTimeMillis() - lastBip > bipRate) {
 			AudioManager mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 			float streamVolumeCurrent = mgr.getStreamVolume(AudioManager.STREAM_RING);
@@ -166,7 +167,7 @@ public class Level extends Activity implements OrientationListener {
 			lastBip = System.currentTimeMillis();
 			soundPool.play(bipSoundID, volume, volume, 1, 0, 1);
 		}
-		view.onOrientationChanged(orientation, pitch, roll);
+		view.onOrientationChanged(orientation, pitch, roll, balance);
 	}
 
 	@Override

@@ -21,7 +21,7 @@ import android.view.View.OnTouchListener;
  *  This file is part of Level (an Android Bubble Level).
  *  <https://github.com/avianey/Level>
  *  
- *  Copyright (C) 2012 Antoine Vianey
+ *  Copyright (C) 2014 Antoine Vianey
  *  
  *  Level is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -84,9 +84,9 @@ public class LevelView extends SurfaceView implements SurfaceHolder.Callback, On
         System.gc();
     }
 
-    public void onOrientationChanged(Orientation orientation, float pitch, float roll) {
+    public void onOrientationChanged(Orientation orientation, float pitch, float roll, float balance) {
 		if (painter != null) {
-			painter.onOrientationChanged(orientation, pitch, roll);
+			painter.onOrientationChanged(orientation, pitch, roll, balance);
 		}
 	}
 
