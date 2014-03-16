@@ -37,8 +37,6 @@ import android.view.SurfaceHolder;
  *  along with Level. If not, see <http://www.gnu.org/licenses/>
  */
 public class LevelPainter implements Runnable {
-	
-	private static final double PI180 = Math.PI / 180;
 
     /** Etats du thread */
     private boolean initialized;
@@ -634,15 +632,15 @@ public class LevelPainter implements Runnable {
 				case TOP :
 				case BOTTOM :
 					angle1 = Math.abs(newBalance);
-		            angleX = Math.sin(newBalance * PI180) / MAX_SINUS;
+		            angleX = Math.sin(Math.toRadians(newBalance)) / MAX_SINUS;
 					break;
 				case LANDING :
 					angle2 = Math.abs(newRoll);
-		            angleX = Math.sin(newRoll * PI180) / MAX_SINUS;
+		            angleX = Math.sin(Math.toRadians(newRoll)) / MAX_SINUS;
 				case RIGHT :
 				case LEFT :
 					angle1 = Math.abs(newPitch);
-		            angleY = Math.sin(newPitch * PI180) / MAX_SINUS;
+		            angleY = Math.sin(Math.toRadians(newPitch)) / MAX_SINUS;
 					if (angle1 > 90) {
 						angle1 = 180 - angle1;
 					}
@@ -654,8 +652,8 @@ public class LevelPainter implements Runnable {
 					angle2 = 100 * angle2 / 45;
 					break;
 				case ROOF_PITCH :
-					angle1 = 12 * (float) Math.tan(angle1 * PI180);
-					angle2 = 12 * (float) Math.tan(angle2 * PI180);
+					angle1 = 12 * (float) Math.tan(Math.toRadians(angle1));
+					angle2 = 12 * (float) Math.tan(Math.toRadians(angle2));
 					break;
 			}
 			// correction des angles affiches

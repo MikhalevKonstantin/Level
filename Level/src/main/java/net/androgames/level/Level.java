@@ -156,8 +156,7 @@ public class Level extends Activity implements OrientationListener {
 
 	@Override
 	public void onOrientationChanged(Orientation orientation, float pitch, float roll, float balance) {
-	    // TODO : use balance
-		if (soundEnabled 
+	    if (soundEnabled 
 				&& orientation.isLevel(pitch, roll, balance, provider.getSensibility())
 				&& System.currentTimeMillis() - lastBip > bipRate) {
 			AudioManager mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);

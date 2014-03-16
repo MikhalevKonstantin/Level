@@ -25,7 +25,7 @@ public enum Orientation {
 	TOP(1, 0),
 	RIGHT(1, 90),
 	BOTTOM(-1, 180),
-	LEFT(-1, 270);
+	LEFT(-1, -90);
 	
 	private int reverse;
 	private int rotation;
