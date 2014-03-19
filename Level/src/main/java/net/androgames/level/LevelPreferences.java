@@ -70,7 +70,7 @@ public class LevelPreferences extends PreferenceActivity implements OnPreference
     	// mise a jour de l'affichage
     	onPreferenceChange(findPreference(KEY_DISPLAY_TYPE), prefs.getString(LevelPreferences.KEY_DISPLAY_TYPE, "ANGLE")); 
     	findPreference(KEY_SENSOR).setSummary(Provider.valueOf(
-    			prefs.getString(LevelPreferences.KEY_SENSOR, PROVIDER_ACCELEROMETER)).getSummary());
+    			prefs.getString(LevelPreferences.KEY_SENSOR, PROVIDER_ORIENTATION)).getSummary());
     	findPreference(KEY_VISCOSITY).setSummary(Viscosity.valueOf(
     			prefs.getString(LevelPreferences.KEY_VISCOSITY, "MEDIUM")).getSummary());
     	findPreference(KEY_VISCOSITY).setEnabled(

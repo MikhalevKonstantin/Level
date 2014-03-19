@@ -127,7 +127,7 @@ public class Level extends Activity implements OrientationListener {
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     	provider = Provider.valueOf(
     			prefs.getString(LevelPreferences.KEY_SENSOR, 
-    					LevelPreferences.PROVIDER_ACCELEROMETER)).getProvider();
+    					LevelPreferences.PROVIDER_ORIENTATION)).getProvider();
     	// chargement des effets sonores
         soundEnabled = prefs.getBoolean(LevelPreferences.KEY_SOUND, false);
         // orientation manager

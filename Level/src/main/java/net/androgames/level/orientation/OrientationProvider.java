@@ -151,8 +151,10 @@ public abstract class OrientationProvider implements SensorEventListener {
             if (sensors.size() > 0) {
                 sensor = sensors.get(0);
                 running = sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL) && running;
-                listener = orientationListener;
             }
+        }
+        if (running) {
+            listener = orientationListener;
         }
     }
 

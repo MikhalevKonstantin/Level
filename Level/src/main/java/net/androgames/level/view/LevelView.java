@@ -70,7 +70,7 @@ public class LevelView extends SurfaceView implements SurfaceHolder.Callback, On
 				prefs.getBoolean(LevelPreferences.KEY_LOCK, false),
 				prefs.getBoolean(LevelPreferences.KEY_ECONOMY, false),
 				Provider.valueOf(prefs.getString(LevelPreferences.KEY_SENSOR, 
-						LevelPreferences.PROVIDER_ACCELEROMETER)));
+						LevelPreferences.PROVIDER_ORIENTATION)));
 	    }
     }
 

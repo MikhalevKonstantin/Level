@@ -70,7 +70,10 @@ public class ProviderAccelerometer extends OrientationProvider {
 	
 	@Override
     protected List<Integer> getRequiredSensors() {
-        return Arrays.asList(Integer.valueOf(Sensor.TYPE_ACCELEROMETER), Integer.valueOf(Sensor.TYPE_MAGNETIC_FIELD));
+        return Arrays.asList(
+                Integer.valueOf(Sensor.TYPE_ACCELEROMETER), 
+                Integer.valueOf(Sensor.TYPE_MAGNETIC_FIELD)
+        );
 	}
 	
 }
