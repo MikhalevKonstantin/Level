@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.androgames</groupId>
     <artifactId>level</artifactId>
-    <version>1.9.6</version>
+    <version>1.9.7</version>
     <packaging>apk</packaging>
     <name>level</name>
 
