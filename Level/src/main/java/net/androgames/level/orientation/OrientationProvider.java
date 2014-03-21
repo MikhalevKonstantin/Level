@@ -33,7 +33,7 @@ import android.view.Surface;
  *  You should have received a copy of the GNU General Public License
  *  along with Level. If not, see <http://www.gnu.org/licenses/>
  */
-public abstract class OrientationProvider implements SensorEventListener {
+public final class OrientationProvider implements SensorEventListener {
 	
 	private static final int MIN_VALUES = 20;
 
@@ -53,17 +53,16 @@ public abstract class OrientationProvider implements SensorEventListener {
     private boolean running = false;
 
 	/** Calibration */
-	private float[] calibratedPitch = new float[5];
-    private float[] calibratedRoll = new float[5];
-    private float[] calibratedBalance = new float[5];
+	private final float[] calibratedPitch = new float[5];
+    private final float[] calibratedRoll = new float[5];
+    private final float[] calibratedBalance = new float[5];
 	private boolean calibrating = false;
 	
 	/** Orientation */
-    protected float yaw;
-    protected float pitch;
-    protected float roll;
-    protected float balance;
-    protected float tmp;
+    private float pitch;
+    private float roll;
+    private float balance;
+    private float tmp;
     private float oldPitch;
     private float oldRoll;
     private float oldBalance;
@@ -71,17 +70,28 @@ public abstract class OrientationProvider implements SensorEventListener {
     private float refValues = 0;
 	private Orientation orientation;
 	private boolean locked;
-	protected int displayOrientation;
+	private int displayOrientation;
 	
 	/** Rotation Matrix */
-	protected float[] R = new float[16];
-	protected float[] outR = new float[16];
-	protected float[] LOC = new float[3];
- 
-    protected OrientationProvider() {
+    private final float[] MAG = new float[] {1f, 1f, 1f};
+    private final float[] I = new float[16];
+    private final float[] R = new float[16];
+    private final float[] outR = new float[16];
+    private final float[] LOC = new float[3];
+
+    private static OrientationProvider provider;
+    
+    private OrientationProvider() {
 		this.displayOrientation = Level.getContext().getWindowManager().getDefaultDisplay().getRotation();
 	}
 
+    public static OrientationProvider getInstance() {
+        if (provider == null) {
+            provider = new OrientationProvider();
+        }
+        return provider;
+    }
+    
 	/**
      * Returns true if the manager is listening to orientation changes
      */
@@ -101,7 +111,11 @@ public abstract class OrientationProvider implements SensorEventListener {
         } catch (Exception e) {}
     }
 
-    protected abstract List<Integer> getRequiredSensors();
+    private List<Integer> getRequiredSensors() {
+        return Arrays.asList(
+                Integer.valueOf(Sensor.TYPE_ACCELEROMETER)
+        );
+    }
 
     /**
      * Returns true if at least one Accelerometer sensor is available
@@ -121,6 +135,7 @@ public abstract class OrientationProvider implements SensorEventListener {
         }
         return supported;
     }
+    
     
     /**
      * Registers a listener and start listening
@@ -165,8 +180,8 @@ public abstract class OrientationProvider implements SensorEventListener {
 		oldPitch = pitch;
 		oldRoll = roll;
 		oldBalance = balance;
-		
-        handleSensorChanged(event);
+
+        SensorManager.getRotationMatrix(R, I, event.values, MAG);
         
         // compute pitch, roll & balance
         switch (displayOrientation) {
@@ -272,9 +287,7 @@ public abstract class OrientationProvider implements SensorEventListener {
 		// propagation of the orientation
         listener.onOrientationChanged(orientation, pitch, roll, balance);
 	}
-    
-	protected abstract void handleSensorChanged(SensorEvent event);
-
+	
 	/**
 	 * Tell the provider to restore the calibration
 	 * to the default factory values
@@ -295,6 +308,7 @@ public abstract class OrientationProvider implements SensorEventListener {
 		}
 	}
     
+	
 	/**
 	 * Tell the provider to save the calibration
 	 * The calibration is actually saved on the next
@@ -304,10 +318,12 @@ public abstract class OrientationProvider implements SensorEventListener {
 		calibrating = true;
 	}
 	
+	
 	public void setLocked(boolean locked) {
 		this.locked = locked;
 	}
 
+	
 	/**
 	 * Return the minimal sensor step
 	 * @return

@@ -1,6 +1,5 @@
 package net.androgames.level;
 
-import net.androgames.level.config.Provider;
 import net.androgames.level.orientation.Orientation;
 import net.androgames.level.orientation.OrientationListener;
 import net.androgames.level.orientation.OrientationProvider;
@@ -125,9 +124,7 @@ public class Level extends Activity implements OrientationListener {
     	super.onResume();
     	Log.d("Level", "Level resumed");
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-    	provider = Provider.valueOf(
-    			prefs.getString(LevelPreferences.KEY_SENSOR, 
-    					LevelPreferences.PROVIDER_ORIENTATION)).getProvider();
+    	provider = OrientationProvider.getInstance();
     	// chargement des effets sonores
         soundEnabled = prefs.getBoolean(LevelPreferences.KEY_SOUND, false);
         // orientation manager

@@ -2,7 +2,6 @@ package net.androgames.level.view;
 
 import net.androgames.level.LevelPreferences;
 import net.androgames.level.config.DisplayType;
-import net.androgames.level.config.Provider;
 import net.androgames.level.config.Viscosity;
 import net.androgames.level.orientation.Orientation;
 import net.androgames.level.painter.LevelPainter;
@@ -68,9 +67,7 @@ public class LevelView extends SurfaceView implements SurfaceHolder.Callback, On
 				DisplayType.valueOf(prefs.getString(LevelPreferences.KEY_DISPLAY_TYPE, "ANGLE")),
 				Viscosity.valueOf(prefs.getString(LevelPreferences.KEY_VISCOSITY, "MEDIUM")),
 				prefs.getBoolean(LevelPreferences.KEY_LOCK, false),
-				prefs.getBoolean(LevelPreferences.KEY_ECONOMY, false),
-				Provider.valueOf(prefs.getString(LevelPreferences.KEY_SENSOR, 
-						LevelPreferences.PROVIDER_ORIENTATION)));
+				prefs.getBoolean(LevelPreferences.KEY_ECONOMY, false));
 	    }
     }
 

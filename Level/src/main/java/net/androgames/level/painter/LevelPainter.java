@@ -5,7 +5,6 @@ import java.text.DecimalFormat;
 import net.androgames.level.Level;
 import net.androgames.level.R;
 import net.androgames.level.config.DisplayType;
-import net.androgames.level.config.Provider;
 import net.androgames.level.config.Viscosity;
 import net.androgames.level.orientation.Orientation;
 import android.content.Context;
@@ -46,6 +45,8 @@ public class LevelPainter implements Runnable {
     private SurfaceHolder surfaceHolder;
 	
 	/** Dimensions */
+    private int height;
+    private int width;
     private int canvasWidth;
     private int canvasHeight;
 	private int minLevelX;
@@ -125,7 +126,6 @@ public class LevelPainter implements Runnable {
 	/** Info */
 	private String infoText;
 	private String lockText;
-	private String sensorText;
 	
 	/** Ajustement de la vitesse */
 	private Viscosity viscosity;
@@ -163,7 +163,7 @@ public class LevelPainter implements Runnable {
     		Handler handler, int width, int height,
     		boolean showAngle, DisplayType angleType, 
     		Viscosity viscosity, boolean lockEnabled, 
-    		boolean ecoMode, Provider provider) {
+    		boolean ecoMode) {
 
     	// get handles to some important objects
         this.surfaceHolder = surfaceHolder;
@@ -197,7 +197,6 @@ public class LevelPainter implements Runnable {
         // strings
         this.infoText = context.getString(R.string.calibrate_info);
         this.lockText = context.getString(R.string.lock_info);
-        this.sensorText = context.getString(provider.getName());
         
         // typeface
         Typeface lcd = Typeface.createFromAsset(context.getAssets(), FONT_LCD);
@@ -388,7 +387,6 @@ public class LevelPainter implements Runnable {
     	switch (orientation) {
 	    	case LANDING :
 	    		canvas.drawText(infoText, middleX, infoY, infoPaint);
-	    		canvas.drawText(sensorText, middleX, sensorY , infoPaint);
 	    		if (lockEnabled) {
 		    		display.setBounds(lockRect);
 		    		display.draw(canvas);
@@ -460,7 +458,6 @@ public class LevelPainter implements Runnable {
 	    	default :
 	    		canvas.rotate(orientation.getRotation(), middleX, middleY);
 	    		canvas.drawText(infoText, middleX, infoY, infoPaint);
-	    		canvas.drawText(sensorText, middleX, sensorY , infoPaint);
 	    		if (lockEnabled) {
 		    		display.setBounds(lockRect);
 		    		display.draw(canvas);
@@ -529,8 +526,6 @@ public class LevelPainter implements Runnable {
 		if (!(lockEnabled && locked) || !initialized) {
 	        synchronized (this.surfaceHolder) {
 	    		orientation = newOrientation;
-	    		
-	    		int height, width;
 	    		
 	    		switch (newOrientation) {
 		    		case LEFT :		// left
