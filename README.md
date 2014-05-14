@@ -1,5 +1,3 @@
-Level
-============
 ```
 An Android Bubble Level application.
 <https://play.google.com/store/apps/details?id=net.androgames.level>
